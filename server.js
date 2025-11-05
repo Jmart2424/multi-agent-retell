@@ -1,5 +1,5 @@
 import Groq from "groq-sdk";
-import WebSocket from "ws";
+import { WebSocketServer } from "ws";
 import express from "express";
 import { agents } from "./agents/index.js";
 
@@ -12,7 +12,7 @@ const groq = new Groq({
 });
 
 // Create WebSocket server
-const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocketServer({ noServer: true });
 
 // Handle WebSocket connections
 wss.on("connection", (ws, req, agentId) => {
