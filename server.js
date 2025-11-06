@@ -69,6 +69,20 @@ wss.on("connection", (ws, req, agentId) => {
         );
       } else if (message.interaction_type === "call_details") {
         console.log(`[${agentConfig.name}] Call started:`, message.call_id);
+        
+        // Send initial greeting immediately when call connects
+        const greeting = "Hi there, this is Sarah from the VA Loan Department at Magnolia Bank on a recorded line. Our callback number is 702-820-2172. How are you doing today?";
+        
+        ws.send(
+          JSON.stringify({
+            response_id: 0,
+            content: greeting,
+            content_complete: true,
+            end_call: false,
+          })
+        );
+        
+        console.log(`[${agentConfig.name}] Sent initial greeting`);
       } else if (message.interaction_type === "update_only") {
         console.log(`[${agentConfig.name}] Transcript update`);
       }
