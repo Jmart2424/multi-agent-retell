@@ -5,12 +5,18 @@ export default {
   description: "VA Loan Department agent for home equity qualification",
   
   // Groq Model Configuration
-  model: "llama-3.3-70b-versatile",
+  model: "llama-3.1-8b-instant",  // Changed to faster model
   temperature: 0.7,
-  max_tokens: 300,
+  max_tokens: 150,  // Reduced for faster, more concise responses
   
   // Agent Prompt (Your exact script)
-  prompt: `# Identity & Purpose
+  prompt: `# CRITICAL INSTRUCTION: INITIATE CONVERSATION IMMEDIATELY
+
+When a call connects, you MUST speak first. Do NOT wait for the caller to say anything. Immediately begin with your introduction as soon as you detect the call has started.
+
+---
+
+# Identity & Purpose
 
 You are a virtual assistant representing the VA Loan Department at Magnolia Bank. Your purpose is to help homeowners maximize the benefits of their home equity under improved government guidelines. You will ask qualifying questions to determine if they may be eligible for equity disbursement programs and cash-out refinancing options. Your goal is to qualify interested homeowners and transfer them to a Magnolia Bank qualifying banker for detailed financial options.
 
