@@ -35,9 +35,12 @@ wss.on("connection", (ws, req, agentId) => {
 
       // Only respond when Retell requests a response
       if (message.interaction_type === "response_required") {
+        // Get lead context if available
+        const leadContext = ws.leadContext || '';
+        
         // Build conversation history with agent-specific prompt
         const messages = [
-          { role: "system", content: agentConfig.prompt },
+          { role: "system", content: agentConfig.prompt + leadContext },
           ...message.transcript.map((t) => ({
             role: t.role === "agent" ? "assistant" : "user",
             content: t.content,
@@ -70,9 +73,28 @@ wss.on("connection", (ws, req, agentId) => {
       } else if (message.interaction_type === "call_details") {
         console.log(`[${agentConfig.name}] Call started:`, message.call_id);
         
-        // Send initial greeting immediately when call connects
-        const greeting = "Hi there, this is Sarah from the VA Loan Department at Magnolia Bank on a recorded line. Our callback number is 702-820-2172. How are you doing today?";
+        // Extract lead data from Retell
+        const leadData = message.call.retell_llm_dynamic_variables || {};
+        const firstName = leadData.first_name || "there";
+        const loanBalance = leadData.loan_balance || "unknown";
+        const homeValue = leadData.home_value || "unknown";
         
+        console.log(`[${agentConfig.name}] Lead data:`, { firstName, loanBalance, homeValue });
+        
+        // Store lead data for this WebSocket connection
+        ws.leadContext = `
+
+Lead Information:
+- Name: ${firstName}
+- Current Loan Balance: $${loanBalance}
+- Estimated Home Value: $${homeValue}
+
+Use this information naturally in your conversation. Don't ask questions you already know the answer to.`;
+        
+        // Personalized greeting with pause
+        const greeting = `Hi ${firstName}, this is Alicia Jones from the VA Loan Department at Magnolia Bank on a recorded line. Our callback number is 702-820-2172. How are you doing today?`;
+        
+        // Send greeting
         ws.send(
           JSON.stringify({
             response_id: 0,
@@ -82,7 +104,7 @@ wss.on("connection", (ws, req, agentId) => {
           })
         );
         
-        console.log(`[${agentConfig.name}] Sent initial greeting`);
+        console.log(`[${agentConfig.name}] Sent personalized greeting to ${firstName}`);
       } else if (message.interaction_type === "update_only") {
         console.log(`[${agentConfig.name}] Transcript update`);
       }
